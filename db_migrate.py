@@ -4,52 +4,6 @@ import config
 import uuid
 import cStringIO
 
-'''
-Q: 这个脚本都做了什么呀？
-A: 它把老的数据库转换成了新的数据库？
-
-Q: 它都做了哪些转换呀？
-A: 它转换了用户，版面，帖子，楼，楼中楼和站内信，
-   然后链接的转换也是很大的。
-
-Q: 用户怎么转的呀？
-A: 老的用户表叫 userinfo，新的叫 users。
-   没有什么特别要说的，除了我规定 gender 男生是 1 女生是 0。
-
-Q: 版面怎么转的呀？
-A: 自己看吧～
-
-Q: 帖子怎么转的呀？
-A: 新 tid 是按老 (bid, tid) 排序后重新编的。
-   这里有个坑，就是老的 timestamp（最后更新） 是 unix 时间戳，
-   我直接用了 from_unixtime 把它转成 MySQL 中的 datetime，
-   可能会损失精度或者需要考虑时区问题。
-
-Q: 楼怎么转的呀？
-A: 新 pid 是按老 (bid, tid, pid) 排序后重新编的。
-   这里也有坑，坑 1 是两个时间的处理有上一条里说的问题。
-   坑 2 是帖子签名档原来存的是“引用”现在直接存内容了，
-   坑 3 是 parse_type 现在取值 'html' 或 'plain'。
-
-Q: 楼中楼怎么转的呀？
-A: 无可奉告！
-
-Q: 站内信怎么转的呀？
-A: 发送者不是 system 的认为是站内信。时间方面有前述的坑。
-
-Q: 嗯好像大部分问题都问完了，然后就剩你说的很大那个，
-   链接作了哪些替换？
-A: 哦这个呀，我们现在做的就是把以下四种格式的链接换成新链接：
-   http://www.chexie.net/bbs/content/?bid=<bid>&tid=<tid>[&p=<p>]
-   http://chexie.net/bbs/content/?bid=<bid>&tid=<tid>[&p=<p>]
-   http://www.chexie.net/cgi-bin/bbs.pl?see=<see>&b=<b>[&p=<p>]
-   http://chexie.net/cgi-bin/bbs.pl?see=<see>&b=<b>[&p=<p>]
-   新链接格式是 /thread/<new_tid>/[page/<p>/]
-
-Q: 嗯好吧好像没什么问题了，中秋快乐 ^_^
-A: 很惭愧，做了一些微小的工作，谢谢大家 Θ..Θ
-'''
-
 db = MySQLdb.connect(host=config.DB_SERVER, passwd=config.DB_PASSWORD, db=config.DB_NAME, user=config.DB_USERNAME)
 
 c = db.cursor()
