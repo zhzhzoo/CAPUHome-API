@@ -32,6 +32,15 @@ c.close()
 c2 = db.cursor()
 c3 = db.cursor()
 
+# parse a argument list
+# input:  s:     string           (eg. """http://whatever/?k1=v1&k2=v2&k3=v3"""),
+#         pos:   beginning of argument list  (eg. 17)
+#         begin: beginning of url            (eg. 0)
+# output: tuple (begin, pos, d)
+#               begin: beginning of url             (eg. 0)
+#               pos:   end of url and argument list (eg. 34)
+#               d:     arguments                    (eg. {"k1": "v1", "k2": "v2", "k3": "v3"})
+# fixme: don't support all escape characters
 def parse_args(s, pos, begin):
     stat = 'k'
     d = {}
@@ -65,7 +74,11 @@ def parse_args(s, pos, begin):
                 d[k] = v
                 break
     return (begin, pos, d)
-
+    
+# find all occurances of a url and parse their argument list
+# input:  s:         string
+#         pattern:   url pattern     (eg. """http://www.chexie.net/bbs/content/?""")
+# output: list of tuples (begin, pos, d)
 def parse_url(s, pattern):
     res = []
     pos = s.find(pattern)
@@ -79,6 +92,10 @@ def parse_url(s, pattern):
 tbl_name = "tbl_" + uuid.uuid4().hex
 c3.execute("""create table %s (bid integer, tid integer, n integer primary key auto_increment)""" % tbl_name)
 
+# find all occurances of a url and interchange them with new url
+# proc defines how to read bid tid from arguments
+# input:  pattern:   url pattern               (eg. """http://www.chexie.net/bbs/content/?""")
+#         proc:      d -> tuple (bid, tid)     (eg. lambda x: (x['bid'], x['tid']) if ('bid' in x) and ('tid' in x) else None)
 def interchange(pattern, proc):
     c2.execute("""select pid, content from posts where locate('%s', content) > 0 order by pid desc""" % pattern)
     res = c2.fetchall()
@@ -123,6 +140,9 @@ def interchange(pattern, proc):
     
     c3.executemany("""update posts set content = %s where pid = %s""", updates)
 
+# 26 jinzhi (pardon for not knowing how to say jinzhi in English) to decimal convertion
+# input:  s        26 jinzhi number   (eg. aaaa)
+# output: number   (eg. 1)
 def decode26(s):
     return reduce(lambda tot, x: tot * 26 + ord(x) - ord('a'), s, 0) + 1
 
