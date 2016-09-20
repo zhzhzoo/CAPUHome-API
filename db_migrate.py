@@ -79,7 +79,7 @@ def parse_url(s, pattern):
 tbl_name = "tbl_" + uuid.uuid4().hex
 c3.execute("""create table %s (bid integer, tid integer, n integer primary key auto_increment)""" % tbl_name)
 
-def tihuan(pattern, proc):
+def interchange(pattern, proc):
     c2.execute("""select pid, content from posts where locate('%s', content) > 0 order by pid desc""" % pattern)
     res = c2.fetchall()
     actions = []
@@ -126,8 +126,8 @@ def tihuan(pattern, proc):
 def decode26(s):
     return reduce(lambda tot, x: tot * 26 + ord(x) - ord('a'), s, 0) + 1
 
-tihuan("""http://www.chexie.net/bbs/content/?""", lambda x: (x['bid'], x['tid']) if ('bid' in x) and ('tid' in x) else None)
-tihuan("""http://chexie.net/bbs/content/?""", lambda x: (x['bid'], x['tid']) if ('bid' in x) and ('tid' in x) else None)
-tihuan("""http://www.chexie.net/cgi-bin/bbs.pl?""", lambda x: (x['b'], decode26(x['see'])) if ('b' in x) and (x['b'] != '') and ('see' in x) else None)
-tihuan("""http://chexie.net/cgi-bin/bbs.pl?""", lambda x: (x['b'], decode26(x['see'])) if ('b' in x) and (x['b'] != '') and ('see' in x) else None)
+interchange("""http://www.chexie.net/bbs/content/?""", lambda x: (x['bid'], x['tid']) if ('bid' in x) and ('tid' in x) else None)
+interchange("""http://chexie.net/bbs/content/?""", lambda x: (x['bid'], x['tid']) if ('bid' in x) and ('tid' in x) else None)
+interchange("""http://www.chexie.net/cgi-bin/bbs.pl?""", lambda x: (x['b'], decode26(x['see'])) if ('b' in x) and (x['b'] != '') and ('see' in x) else None)
+interchange("""http://chexie.net/cgi-bin/bbs.pl?""", lambda x: (x['b'], decode26(x['see'])) if ('b' in x) and (x['b'] != '') and ('see' in x) else None)
 c3.execute("""drop table %s""" % tbl_name)
