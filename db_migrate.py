@@ -140,8 +140,8 @@ def interchange(pattern, proc):
     
     c3.executemany("""update posts set content = %s where pid = %s""", updates)
 
-# 26 jinzhi (pardon for not knowing how to say jinzhi in English) to decimal convertion
-# input:  s        26 jinzhi number   (eg. aaaa)
+# base26 to decimal convertion
+# input:  s        base26 number   (eg. aaaa)
 # output: number   (eg. 1)
 def decode26(s):
     return reduce(lambda tot, x: tot * 26 + ord(x) - ord('a'), s, 0) + 1
